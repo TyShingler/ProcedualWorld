@@ -2,19 +2,6 @@
 #include "Utility.compute"
 
 RWTexture2D<float4> Result;
-//n*3+0=lerpInXDirection 
-//n*3+1=lerpInYDirection 
-//n*3+2=lerpInZDirection 
-//RWTexture2D<float4> Input;
-
-/*
-float lerpField(uint3 id, int side) {
-	float a = (Input[imageIndexing(id)].x * 2) - 1;
-	float b = (Input[imageIndexing(id + CubeOffSets[side])].x * 2) - 1 ;
-	//float zeroCheck = ((b - a == 0) ? 1 : 0);
-	float c = lerp(0.0f, 1.0f, abs(a) / abs(b - a));
-	return c;
-}*/
 
 float lerpField(uint3 id, int side) {
 	float a = takeSample(id);

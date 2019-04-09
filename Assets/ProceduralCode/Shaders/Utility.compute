@@ -1,6 +1,13 @@
 ﻿#include "SimplexNoise3D.compute"
+
 static int volumeSize = 16;
 
+//If I need to replace Noise function it can easly be done here.
+float sampleProxy(float3 location) {
+	return snoise(location);
+}
+
+//Used to map id's to image locations in a way that make sence.
 uint2 imageIndexing(uint3 id) {
 	uint2 index = uint2(-1, -1);
 
@@ -10,6 +17,7 @@ uint2 imageIndexing(uint3 id) {
 	return index;
 }
 
+//Indexing to one dimentional varables.
 int idIndexing(uint3 id) {
 	return id.x + (volumeSize* id.y) + (volumeSize*volumeSize*id.z);
 }
@@ -27,14 +35,20 @@ static const float3 CubeOffSets[8] =
 	float3(1,0,1)  // 7
 };
 
+//Used to shift the cordinate that I'm sampling from.
 int xOffset = 0;
 int yOffset = 0;
 int zOffset = 0;
 
+//Size = 16^3; The size of array must be a literal scalar expression.
+//loat previouslySampledLocations[4096];
+
 static const float sampleRate = 32.0f;
 float takeSample(uint3 id) {
-	int3 pos = int3(id);
-	float3 location = float3(pos.x + xOffset, pos.y + yOffset, pos.z + zOffset) / sampleRate;
-	return snoise(location); // snoise Range[-1, 1] so add 1 so it when adding to image.
+	float3 location = float3(id.x + xOffset, id.y + yOffset, id.z + zOffset) / sampleRate;
+	float noise = sampleProxy(location); // snoise Range[-1, 1] so add 1 so it when adding to image.
+	previouslySampledLocations[idIndexing(id)] = noise;
+
+	return noise;
 }
 

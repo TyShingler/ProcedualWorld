@@ -1,0 +1,44 @@
+﻿#pragma kernel CaseNumber
+#include "Utility.compute"
+
+RWTexture2D<float4> Result;
+RWTexture2D<float4> Input;
+RWStructuredBuffer<float> Result_Floats;
+
+uint2 getIndex(float3 idAsFloat, int offSet) {
+	return imageIndexing(idAsFloat + CubeOffSets[offSet]);
+}
+
+float calculateCaseNumber(uint3 id)
+{
+	float caseNumber = 0;
+	float3 idAsFloat = float3(id.x, id.y, id.z);
+
+	for (int i = 0; i < 8; i++) {
+		float3 input = takeSample(id + CubeOffSets[offSet]);
+		if ((input.x >= 0)) {
+			caseNumber += pow(2,i);
+		}
+	}
+	
+	return caseNumber;
+
+
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[0])] >= 1 ? 1  : 0);
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[1])] >= 1 ? 2  : 0);
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[2])] >= 1 ? 4  : 0);
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[3])] >= 1 ? 8  : 0);
+	//		   
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[4])] >= 1 ? 16 : 0);
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[5])] >= 1 ? 32 : 0);
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[6])] >= 1 ? 64 : 0);
+	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[7])] >= 1 ? 128: 0);
+	//return caseNumber;
+}
+
+[numthreads(8,8,8)]
+void CaseNumber(uint3 id : SV_DispatchThreadID)
+{
+	Result[imageIndexing(id)] =     calculateCaseNumber(id) / 255;
+	Result_Floats[idIndexing(id)] = calculateCaseNumber(id) / 1;
+}

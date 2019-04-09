@@ -1,0 +1,41 @@
+﻿#pragma kernel LerpField
+#include "Utility.compute"
+
+RWTexture2D<float4> Result;
+//n*3+0=lerpInXDirection 
+//n*3+1=lerpInYDirection 
+//n*3+2=lerpInZDirection 
+//RWTexture2D<float4> Input;
+
+/*
+float lerpField(uint3 id, int side) {
+	float a = (Input[imageIndexing(id)].x * 2) - 1;
+	float b = (Input[imageIndexing(id + CubeOffSets[side])].x * 2) - 1 ;
+	//float zeroCheck = ((b - a == 0) ? 1 : 0);
+	float c = lerp(0.0f, 1.0f, abs(a) / abs(b - a));
+	return c;
+}*/
+
+float lerpField(uint3 id, int side) {
+	float a = takeSample(id);
+	float b = takeSample(id + CubeOffSets[side]);
+	float zeroCheck = ((b - a == 0) ? 1 : 0);
+	float c = lerp(0.0f, 1.0f, a / abs(b - a));
+	return c;
+}
+
+static const int xs = 3;
+static const int ys = 1;
+static const int zs = 4;
+
+float lerpForImage(uint3 id, int side) {
+
+	float value = lerpField(id, side);
+	return  value >= 0 ? value : 0.0f;
+}
+
+[numthreads(8,8,8)]
+void LerpField (uint3 id : SV_DispatchThreadID)
+{
+	Result[imageIndexing(id)] = float4(lerpForImage(id, xs), lerpForImage(id, ys), lerpForImage(id, zs), 0.0f);
+}

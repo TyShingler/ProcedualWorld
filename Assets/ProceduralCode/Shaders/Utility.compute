@@ -1,0 +1,40 @@
+﻿#include "SimplexNoise3D.compute"
+static int volumeSize = 16;
+
+uint2 imageIndexing(uint3 id) {
+	uint2 index = uint2(-1, -1);
+
+	index.x = id.x + volumeSize*(id.z % 4);
+	index.y = id.y + volumeSize*((int)(id.z / 4));
+
+	return index;
+}
+
+int idIndexing(uint3 id) {
+	return id.x + (volumeSize* id.y) + (volumeSize*volumeSize*id.z);
+}
+
+static const float3 CubeOffSets[8] =
+{ //  x,y,z
+	float3(0,0,0), // 0
+	float3(0,1,0), // 1 
+	float3(1,1,0), // 2
+	float3(1,0,0), // 3
+
+	float3(0,0,1), // 4 
+	float3(0,1,1), // 5 
+	float3(1,1,1), // 6
+	float3(1,0,1)  // 7
+};
+
+int xOffset = 0;
+int yOffset = 0;
+int zOffset = 0;
+
+static const float sampleRate = 32.0f;
+float takeSample(uint3 id) {
+	int3 pos = int3(id);
+	float3 location = float3(pos.x + xOffset, pos.y + yOffset, pos.z + zOffset) / sampleRate;
+	return snoise(location); // snoise Range[-1, 1] so add 1 so it when adding to image.
+}
+

@@ -1,7 +1,10 @@
 ﻿#pragma kernel LerpField
 #include "Utility.compute"
 
-RWTexture2D<float4> Result;
+RWTexture2D<float4> LerpField_Texture;
+RWStructuredBuffer<float> LerpFloats_X;
+RWStructuredBuffer<float> LerpFloats_Y;
+RWStructuredBuffer<float> LerpFloats_Z;
 
 float lerpField(uint3 id, int side) {
 	float a = takeSample(id);
@@ -25,5 +28,9 @@ static const int zs = 4;
 [numthreads(8,8,8)]
 void LerpField (uint3 id : SV_DispatchThreadID)
 {
-	Result[imageIndexing(id)] = float4(lerpForImage(id, xs), lerpForImage(id, ys), lerpForImage(id, zs), 0.0f);
+	float4 value = float4(lerpForImage(id, xs), lerpForImage(id, ys), lerpForImage(id, zs), 0.0f);
+	LerpField_Texture[imageIndexing(id)] = value;
+	LerpFloats_X[idIndexing(id)] = value.x;
+	LerpFloats_Y[idIndexing(id)] = value.y;
+	LerpFloats_Z[idIndexing(id)] = value.z;
 }

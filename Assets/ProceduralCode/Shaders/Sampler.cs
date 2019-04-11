@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 //[ExecuteInEditMode]
 public class Sampler : MonoBehaviour
@@ -17,7 +14,7 @@ public class Sampler : MonoBehaviour
     public RenderTexture sampler_texture;
     public Material sampler_material;
     int volumeSize = 16;
-    float sampleRate = 32.0f;
+    //Not currently used float sampleRate = 32.0f;
 
     //Part 2
     public ComputeShader lerpFieldGenerator;
@@ -30,9 +27,9 @@ public class Sampler : MonoBehaviour
     public Material caseNumber_material;
 
     //Timing
-    int shaderWaitTime = 20;
-    float tempTime;
-    int count = 0;
+    //Not currently used int shaderWaitTime = 20;
+    //Not currently used float tempTime;
+    //Not currently used int count = 0;
     
     public int xOffsets = 0;
     public int yOffsets = 0;
@@ -65,12 +62,11 @@ public class Sampler : MonoBehaviour
 
         caseNumber_texture = CreateTexture();
 
-        caseNumberGenerator.SetTexture(caseNumberHandler, "Result", caseNumber_texture);
-        caseNumberGenerator.SetTexture(caseNumberHandler, "Input", sampler_texture);
+        caseNumberGenerator.SetTexture(caseNumberHandler, "CaseNumber_Texture", caseNumber_texture);
 
         float[] caseNumbers = new float[volumeSize * volumeSize * volumeSize];
-        ComputeBuffer numberBuffer = new ComputeBuffer(caseNumbers.Length, sizeof(float));
-        caseNumberGenerator.SetBuffer(caseNumberHandler, "Result_Floats", numberBuffer);
+        ComputeBuffer lerpBuffer = new ComputeBuffer(caseNumbers.Length, sizeof(float));
+        caseNumberGenerator.SetBuffer(caseNumberHandler, "CaseNumber_Floats", lerpBuffer);
 
         SetupShaderOffsets(caseNumberGenerator);
 
@@ -78,9 +74,15 @@ public class Sampler : MonoBehaviour
         caseNumber_material.mainTexture = caseNumber_texture;
 
 
-        numberBuffer.GetData(caseNumbers);
-        numberBuffer.Dispose();
+        lerpBuffer.GetData(caseNumbers);
+        lerpBuffer.Dispose();
         //printFloatArray(caseNumbers, "CaseNumber");
+    }
+
+    struct LerpField
+    {
+        public float[] lerpValues;
+        public ComputeBuffer lerpBuffer;
     }
 
     private void GenerateLerpField()
@@ -88,14 +90,37 @@ public class Sampler : MonoBehaviour
         int lerpFieldHandler = lerpFieldGenerator.FindKernel("LerpField");
 
         lerpField_texture = CreateTexture();
+        lerpFieldGenerator.SetTexture(lerpFieldHandler, "LerpField_Texture", lerpField_texture);
 
-        lerpFieldGenerator.SetTexture(lerpFieldHandler, "Result", lerpField_texture);
-        lerpFieldGenerator.SetTexture(lerpFieldHandler, "Input", sampler_texture);
+        LerpField XField = SetLerpFieldArrayForDirection(lerpFieldHandler, "LerpFloats_X");
+        LerpField YField = SetLerpFieldArrayForDirection(lerpFieldHandler, "LerpFloats_Y");
+        LerpField ZField = SetLerpFieldArrayForDirection(lerpFieldHandler, "LerpFloats_Z");
 
         SetupShaderOffsets(lerpFieldGenerator);
 
         lerpFieldGenerator.Dispatch(lerpFieldHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         lerpField_material.mainTexture = lerpField_texture;
+
+        GetFieldDataFromComputeShader(XField);
+        GetFieldDataFromComputeShader(YField);
+        GetFieldDataFromComputeShader(ZField);
+    }
+
+    // Returns the array, but it is also stored in the lerpField passed in.
+    private static float[] GetFieldDataFromComputeShader(LerpField lerpField)
+    {
+        lerpField.lerpBuffer.GetData(lerpField.lerpValues);
+        lerpField.lerpBuffer.Dispose();
+        return lerpField.lerpValues;
+    }
+
+    private LerpField SetLerpFieldArrayForDirection(int lerpFieldHandler, string arrayName)
+    {
+        LerpField result = new LerpField();
+        result.lerpValues = new float[volumeSize * volumeSize * volumeSize];
+        result.lerpBuffer = new ComputeBuffer(result.lerpValues.Length, sizeof(float));
+        lerpFieldGenerator.SetBuffer(lerpFieldHandler, arrayName, result.lerpBuffer);
+        return result;
     }
 
     private void GenerateSamples()
@@ -108,6 +133,7 @@ public class Sampler : MonoBehaviour
 
         sampler.Dispatch(samplerHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         sampler_material.mainTexture = sampler_texture;
+
     }
 
     private void SetupShaderOffsets(ComputeShader shader)

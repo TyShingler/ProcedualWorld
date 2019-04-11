@@ -1,13 +1,8 @@
 ﻿#pragma kernel CaseNumber
 #include "Utility.compute"
 
-RWTexture2D<float4> Result;
-RWTexture2D<float4> Input;
-RWStructuredBuffer<float> Result_Floats;
-
-uint2 getIndex(float3 idAsFloat, int offSet) {
-	return imageIndexing(idAsFloat + CubeOffSets[offSet]);
-}
+RWTexture2D<float4> CaseNumber_Texture;
+RWStructuredBuffer<float> CaseNumber_Floats;
 
 float calculateCaseNumber(uint3 id)
 {
@@ -20,13 +15,12 @@ float calculateCaseNumber(uint3 id)
 			caseNumber += pow(2,i);
 		}
 	}
-	
 	return caseNumber;
 }
 
 [numthreads(8,8,8)]
 void CaseNumber(uint3 id : SV_DispatchThreadID)
 {
-	Result[imageIndexing(id)] =     calculateCaseNumber(id) / 255;
-	Result_Floats[idIndexing(id)] = calculateCaseNumber(id) / 1;
+	CaseNumber_Texture[imageIndexing(id)] =     calculateCaseNumber(id) / 255;
+	CaseNumber_Floats[idIndexing(id)] = calculateCaseNumber(id) / 1;
 }

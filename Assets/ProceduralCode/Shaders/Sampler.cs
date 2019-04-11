@@ -70,7 +70,7 @@ public class Sampler : MonoBehaviour
         ComputeBuffer numberBuffer = new ComputeBuffer(caseNumbers.Length, sizeof(float));
         caseNumberGenerator.SetBuffer(caseNumberHandler, "Result_Floats", numberBuffer);
 
-        SetOffsets(caseNumberGenerator);
+        SetupShader(caseNumberGenerator, caseNumberHandler);
 
         caseNumberGenerator.Dispatch(caseNumberHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         caseNumber_material.mainTexture = caseNumber_texture;
@@ -89,7 +89,7 @@ public class Sampler : MonoBehaviour
         lerpFieldGenerator.SetTexture(lerpFieldHandler, "Result", lerpField_texture);
         lerpFieldGenerator.SetTexture(lerpFieldHandler, "Input", sampler_texture);
 
-        SetOffsets(lerpFieldGenerator);
+        SetupShader(lerpFieldGenerator, lerpFieldHandler);
 
         lerpFieldGenerator.Dispatch(lerpFieldHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         lerpField_material.mainTexture = lerpField_texture;
@@ -101,17 +101,24 @@ public class Sampler : MonoBehaviour
         sampler_texture = CreateTexture();
         sampler.SetTexture(samplerHandler, "Result", sampler_texture);
 
-        SetOffsets( sampler );
+        SetupShader( sampler, samplerHandler );
 
         sampler.Dispatch(samplerHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         sampler_material.mainTexture = sampler_texture;
     }
 
-    private void SetOffsets(ComputeShader computeShader)
+    private void SetupShader(ComputeShader computeShader, int samplerHandle )
     {
         computeShader.SetInt("xOffset", xOffsets);
         computeShader.SetInt("yOffset", yOffsets);
         computeShader.SetInt("zOffset", zOffsets);
+
+        /*
+        RenderTexture previousSampledFlaots = new RenderTexture(65, 65, 24);
+        previousSampledFlaots.enableRandomWrite = true;
+        previousSampledFlaots.Create();
+        computeShader.SetTexture(samplerHandle, "previousSampledFlaots", previousSampledFlaots);
+        */
     }
 
     private RenderTexture CreateTexture()

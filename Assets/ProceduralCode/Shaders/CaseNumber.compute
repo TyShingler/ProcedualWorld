@@ -15,25 +15,13 @@ float calculateCaseNumber(uint3 id)
 	float3 idAsFloat = float3(id.x, id.y, id.z);
 
 	for (int i = 0; i < 8; i++) {
-		float3 input = takeSample(id + CubeOffSets[offSet]);
+		float3 input = takeSample(id + CubeOffSets[i]);
 		if ((input.x >= 0)) {
 			caseNumber += pow(2,i);
 		}
 	}
 	
 	return caseNumber;
-
-
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[0])] >= 1 ? 1  : 0);
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[1])] >= 1 ? 2  : 0);
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[2])] >= 1 ? 4  : 0);
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[3])] >= 1 ? 8  : 0);
-	//		   
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[4])] >= 1 ? 16 : 0);
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[5])] >= 1 ? 32 : 0);
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[6])] >= 1 ? 64 : 0);
-	//caseNumber += (Input[imageIndexing(idAsFloat+CubeOffSets[7])] >= 1 ? 128: 0);
-	//return caseNumber;
 }
 
 [numthreads(8,8,8)]

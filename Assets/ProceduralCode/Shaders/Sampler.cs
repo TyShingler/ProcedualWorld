@@ -72,9 +72,7 @@ public class Sampler : MonoBehaviour
         ComputeBuffer numberBuffer = new ComputeBuffer(caseNumbers.Length, sizeof(float));
         caseNumberGenerator.SetBuffer(caseNumberHandler, "Result_Floats", numberBuffer);
 
-        caseNumberGenerator.SetInt("xOffset", xOffsets);
-        caseNumberGenerator.SetInt("yOffset", yOffsets);
-        caseNumberGenerator.SetInt("zOffset", zOffsets);
+        SetupShaderOffsets(caseNumberGenerator);
 
         caseNumberGenerator.Dispatch(caseNumberHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         caseNumber_material.mainTexture = caseNumber_texture;
@@ -82,7 +80,7 @@ public class Sampler : MonoBehaviour
 
         numberBuffer.GetData(caseNumbers);
         numberBuffer.Dispose();
-        printFloatArray(caseNumbers, "CaseNumber");
+        //printFloatArray(caseNumbers, "CaseNumber");
     }
 
     private void GenerateLerpField()
@@ -94,9 +92,7 @@ public class Sampler : MonoBehaviour
         lerpFieldGenerator.SetTexture(lerpFieldHandler, "Result", lerpField_texture);
         lerpFieldGenerator.SetTexture(lerpFieldHandler, "Input", sampler_texture);
 
-        lerpFieldGenerator.SetInt("xOffset", xOffsets);
-        lerpFieldGenerator.SetInt("yOffset", yOffsets);
-        lerpFieldGenerator.SetInt("zOffset", zOffsets);
+        SetupShaderOffsets(lerpFieldGenerator);
 
         lerpFieldGenerator.Dispatch(lerpFieldHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         lerpField_material.mainTexture = lerpField_texture;
@@ -105,17 +101,20 @@ public class Sampler : MonoBehaviour
     private void GenerateSamples()
     {
         int samplerHandler = sampler.FindKernel("Sampler");
-        sampler_texture = new RenderTexture(volumeSize * 4, volumeSize * 4, 24);
-        sampler_texture.enableRandomWrite = true;
-        sampler_texture.Create();
+        sampler_texture = CreateTexture();
         sampler.SetTexture(samplerHandler, "Result", sampler_texture);
 
-        sampler.SetInt("xOffset", xOffsets);
-        sampler.SetInt("yOffset", yOffsets);
-        sampler.SetInt("zOffset", zOffsets);
+        SetupShaderOffsets(sampler);
 
         sampler.Dispatch(samplerHandler, volumeSize / 8, volumeSize / 8, volumeSize / 8);
         sampler_material.mainTexture = sampler_texture;
+    }
+
+    private void SetupShaderOffsets(ComputeShader shader)
+    {
+        shader.SetInt("xOffset", xOffsets);
+        shader.SetInt("yOffset", yOffsets);
+        shader.SetInt("zOffset", zOffsets);
     }
 
     private RenderTexture CreateTexture()

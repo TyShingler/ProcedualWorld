@@ -4,17 +4,6 @@
 
 RWTexture2D<float4> Result;
 
-//int xOffset = 0;
-//int yOffset = 0;
-//int zOffset = 0;
-//TODO: !!!Remember to change aSize if the size of the cube rendered changes!!!
-//static const float sampleRate = 32.0f;
-//float takeSample(uint3 id) {
-//	int3 pos = int3(id);
-//	float3 location = float3(pos.x + xOffset, pos.y + yOffset, pos.z + zOffset) / sampleRate;
-//	return snoise(location); // snoise Range[-1, 1] so add 1 so it when adding to image.
-//}
-
 [numthreads(8,8,8)]
 void Sampler(uint3 id : SV_DispatchThreadID)
 {

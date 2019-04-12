@@ -1,6 +1,5 @@
 ﻿#pragma kernel Sampler
-
-#include "Utility.compute"
+#include "Assets/ProceduralCode/MarchingCubes/Shaders/Utility.compute"
 
 RWTexture2D<float4> Result;
 

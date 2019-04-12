@@ -28,6 +28,7 @@ static const int zs = 4;
 [numthreads(8,8,8)]
 void LerpField (uint3 id : SV_DispatchThreadID)
 {
+	//volumeSize = 17;
 	float4 value = float4(lerpForImage(id, xs), lerpForImage(id, ys), lerpForImage(id, zs), 0.0f);
 	LerpField_Texture[imageIndexing(id)] = value;
 	LerpFloats_X[idIndexing(id)] = value.x;

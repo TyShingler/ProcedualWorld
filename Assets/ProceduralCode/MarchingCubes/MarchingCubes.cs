@@ -113,70 +113,21 @@ public class MarchingCubes
 
     private Vector3 GetVectorFromLerpField(Vector3 position, int item)
     {
-        Vector3 result = new Vector3();
-        int sample = index;
-        if (item < 8)
+        if (EdgesInX.Contains(item))
         {
-            if(item % 2 == 0)
-            {
-                if(item == 2 || item == 6)
-                {
-                    sample = idIndexing(position + CubeOffSets[item + 1]);
-                    result = CubeOffSets[item + 1] + new Vector3(0, collection.Y.lerpValues[sample], 0);
-                }else
-                {
-                    sample = idIndexing(position);
-                    result = CubeOffSets[item] + new Vector3(0, collection.Y.lerpValues[sample], 0);
-                }
-
-            } else
-            {
-                if(item == 3 || item == 7)
-                {
-                    sample = idIndexing(position + CubeOffSets[item - 3]);
-                    result = CubeOffSets[item - 3] + new Vector3(collection.X.lerpValues[sample],0,0);
-                }else
-                {
-                    sample = idIndexing(position);
-                    result = CubeOffSets[item] + new Vector3(collection.X.lerpValues[sample], 0, 0);
-                }
-            }
+            return new Vector3(collection.X.lerpValues[index], 0, 0) + position;
+        } else if (EdgesInY.Contains(item)) {
+            return new Vector3(0, collection.Y.lerpValues[index], 0) + position;
+        } else if (EdgesInZ.Contains(item)) {
+            return new Vector3(0, 0, collection.Z.lerpValues[index]) + position;
         }
-        else
-        {
-            sample = idIndexing(position + CubeOffSets[item - 8]);
-            result = CubeOffSets[item - 8] + new Vector3(0, 0, collection.Z.lerpValues[sample]);
-        }
-        return result + position;
-
-        //if (EdgesInX.Contains(item))
-        //{
-        //    return new Vector3(collection.X.lerpValues[index], 0, 0) + position;
-        //} else if (EdgesInY.Contains(item)) {
-        //    return new Vector3(0, collection.Y.lerpValues[index], 0) + position;
-        //} else if (EdgesInZ.Contains(item)) {
-        //    return new Vector3(0, 0, collection.Z.lerpValues[index]) + position;
-        //}
-        //return new Vector3(-1, -1, -1);
+        return new Vector3(-1, -1, -1);
     }
 
     int idIndexing(Vector3 id)
     {
         return (int)( id.x + (volumeSize * id.y) + (volumeSize * volumeSize * id.z) );
     }
-
-    static readonly Vector3[] CubeOffSets =
-    { //  x,y,z
-    	new Vector3(0,0,0), // 0
-    	new Vector3(0,1,0), // 1 
-    	new Vector3(1,1,0), // 2
-    	new Vector3(1,0,0), // 3
-    
-    	new Vector3(0,0,1), // 4 
-    	new Vector3(0,1,1), // 5 
-    	new Vector3(1,1,1), // 6
-    	new Vector3(1,0,1)  // 7
-    };
 
     // Marching Cubes Data for turn into mesh.
     private readonly static int[] case_to_numpolys = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 2, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 3,

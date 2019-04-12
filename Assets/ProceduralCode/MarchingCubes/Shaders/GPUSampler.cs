@@ -113,8 +113,7 @@ public class GPUSampler
     private LerpField SetLerpFieldArrayForDirection(int lerpFieldHandler, string arrayName)
     {
         LerpField result = new LerpField();
-        //Need to add one b/c the 17th layers are needed to make meshes.
-        result.lerpValues = new float[(volumeSize+1) * (volumeSize+1)  * (volumeSize+1)];
+        result.lerpValues = new float[volumeSize * volumeSize * volumeSize];
         result.lerpBuffer = new ComputeBuffer(result.lerpValues.Length, sizeof(float));
         lerpFieldGenerator.SetBuffer(lerpFieldHandler, arrayName, result.lerpBuffer);
         return result;

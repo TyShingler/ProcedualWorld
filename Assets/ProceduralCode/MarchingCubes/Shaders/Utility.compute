@@ -1,5 +1,5 @@
 ﻿#include "SimplexNoise3D.compute"
-int volumeSize = 16;
+static int volumeSize = 16;
 
 uint2 imageIndexing(uint3 id) {
 	uint2 index = uint2(-1, -1);

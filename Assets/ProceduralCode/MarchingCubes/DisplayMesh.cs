@@ -36,7 +36,6 @@ public class DisplayMesh : MonoBehaviour
         chunk.AddComponent<MeshRenderer>();
         chunk.GetComponent<Renderer>();
         chunk.GetComponent<MeshFilter>().mesh = mesh;
-
-
+        
     }
 }

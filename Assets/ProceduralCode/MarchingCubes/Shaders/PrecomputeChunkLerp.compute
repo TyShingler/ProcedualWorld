@@ -1,0 +1,75 @@
+﻿#pragma kernel PrecomputeChunkLerp
+
+#include "SimplexNoise3D.compute"
+
+// Offsets for changing sample locations
+int xOffset = 0;
+int yOffset = 0;
+int zOffset = 0;
+// indexing for rendering test images
+uint2 imageIndexing(uint3 id, int imageSize) {
+	int2 index = int2(0, 0);
+	index.x = id.x;
+	index.y = id.y + (id.z * imageSize);
+	return index;
+}
+// indexing for rendering arrays
+int idIndexing(uint3 id, int size) {
+	return id.x + (size* id.y) + (size*size*id.z);
+}
+
+static const float3 CubeOffSets[8] =
+{ //  x,y,z
+	float3(0,0,0), // 0
+	float3(0,1,0), // 1 
+	float3(1,1,0), // 2
+	float3(1,0,0), // 3
+
+	float3(0,0,1), // 4 
+	float3(0,1,1), // 5 
+	float3(1,1,1), // 6
+	float3(1,0,1)  // 7
+};
+// Method for taking samples
+static const float sampleRate = 32.0f;
+float takeSample(uint3 id) {
+	int3 pos = int3(id);
+	float3 location = float3(pos.x + xOffset, pos.y + yOffset, pos.z + zOffset) / sampleRate;
+	return snoise(location); // snoise Range[-1, 1] so add 1 so it when adding to image.
+}
+
+///Setup for rendering LerpField
+RWTexture2D<float4> LerpField_Texture;
+
+RWStructuredBuffer<float> LerpFloats_X;
+RWStructuredBuffer<float> LerpFloats_Y;
+RWStructuredBuffer<float> LerpFloats_Z;
+
+float lerpField(uint3 id, int side) {
+	float a = takeSample(id);
+	float b = takeSample(id + CubeOffSets[side]);
+	float zeroCheck = ((b - a == 0) ? 1 : 0);
+	float c = lerp(0.0f, 1.0f, a / abs(b - a));
+	return (zeroCheck == 1)? 255 : c;
+}
+
+float lerpForImage(uint3 id, int side) {
+
+	float value = lerpField(id, side);
+	return  value >= 0 ? value : 0.0f;
+}
+
+static const int xs = 3;
+static const int ys = 1;
+static const int zs = 4;
+
+[numthreads(6,6,6)]
+void PrecomputeChunkLerp(uint3 id : SV_DispatchThreadID)
+{
+	//LerpField
+	float4 value = float4(lerpForImage(id, xs), lerpForImage(id, ys), lerpForImage(id, zs), 0.0f);
+	LerpField_Texture[imageIndexing(id, 18)] = value;
+	LerpFloats_X[idIndexing(id, 18)] = value.x;
+	LerpFloats_Y[idIndexing(id, 18)] = value.y;
+	LerpFloats_Z[idIndexing(id, 18)] = value.z;
+}

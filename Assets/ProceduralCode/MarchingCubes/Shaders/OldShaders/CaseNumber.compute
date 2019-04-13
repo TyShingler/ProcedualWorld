@@ -1,5 +1,5 @@
 ﻿#pragma kernel CaseNumber
-#include "Assets/ProceduralCode/MarchingCubes/Shaders/Utility.compute"
+#include "Utility.compute"
 
 RWTexture2D<float4> CaseNumber_Texture;
 RWStructuredBuffer<float> CaseNumber_Floats;

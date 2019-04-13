@@ -1,5 +1,5 @@
 ﻿#pragma kernel LerpField
-#include "Assets/ProceduralCode/MarchingCubes/Shaders/Utility.compute"
+#include "Utility.compute"
 
 RWTexture2D<float4> LerpField_Texture;
 RWStructuredBuffer<float> LerpFloats_X;

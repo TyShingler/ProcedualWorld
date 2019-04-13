@@ -1,0 +1,65 @@
+﻿#pragma kernel PrecomputeChunkCase
+
+#include "SimplexNoise3D.compute"
+
+// Offsets for changing sample locations
+int xOffset = 0;
+int yOffset = 0;
+int zOffset = 0;
+// indexing for rendering test images
+uint2 imageIndexing(uint3 id, int imageSize) {
+	int2 index = int2(0, 0);
+	index.x = id.x;
+	index.y = id.y + (id.z * imageSize);
+	return index;
+}
+// indexing for rendering arrays
+int idIndexing(uint3 id, int size) {
+	return id.x + (size* id.y) + (size*size*id.z);
+}
+
+static const float3 CubeOffSets[8] =
+{ //  x,y,z
+	float3(0,0,0), // 0
+	float3(0,1,0), // 1 
+	float3(1,1,0), // 2
+	float3(1,0,0), // 3
+
+	float3(0,0,1), // 4 
+	float3(0,1,1), // 5 
+	float3(1,1,1), // 6
+	float3(1,0,1)  // 7
+};
+// Method for taking samples
+static const float sampleRate = 32.0f;
+float takeSample(uint3 id) {
+	int3 pos = int3(id);
+	float3 location = float3(pos.x + xOffset, pos.y + yOffset, pos.z + zOffset) / sampleRate;
+	return snoise(location); // snoise Range[-1, 1] so add 1 so it when adding to image.
+}
+
+//Setup for rendering caseNumbers
+RWTexture2D<float4> CaseNumber_Texture;
+RWStructuredBuffer<float> CaseNumber_Floats;
+
+float calculateCaseNumber(uint3 id)
+{
+	float caseNumber = 0;
+	float3 idAsFloat = float3(id.x, id.y, id.z);
+
+	for (int i = 0; i < 8; i++) {
+		float3 input = takeSample(id + CubeOffSets[i]);
+		if ((input.x >= 0)) {
+			caseNumber += pow(2, i);
+		}
+	}
+	return caseNumber;
+}
+
+[numthreads(8,8,8)]
+void PrecomputeChunkCase(uint3 id : SV_DispatchThreadID)
+{
+	float caseNumber = calculateCaseNumber(id);
+	CaseNumber_Texture[imageIndexing(id, 16)] = caseNumber / 255;
+	CaseNumber_Floats[idIndexing(id, 16)] = caseNumber;
+}

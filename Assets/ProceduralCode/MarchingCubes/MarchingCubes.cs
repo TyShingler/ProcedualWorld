@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using static GPUSampler;
 using UnityEngine;
+using static ChunkPrecomputer;
 using System;
 
 public class MarchingCubes
@@ -11,9 +11,9 @@ public class MarchingCubes
     public ComputeShader caseNumberShader;
 
     //      ---Private---
-    private GPUSampler sampler;
+    private ChunkPrecomputer sampler;
     private float[] caseNumbers;
-    private FieldCollection collection;
+    private PrecomputedChunkCollection collection;
     private int volumeSize = 16;
 
     private List<Vector3> listOfVectors;
@@ -30,10 +30,9 @@ public class MarchingCubes
 
     public Mesh GenerateMesh()
     {
-        sampler = new GPUSampler(lerpFieldShader, caseNumberShader);
+        sampler = new ChunkPrecomputer(lerpFieldShader, caseNumberShader);
 
-        caseNumbers = sampler.GenerateCaseNumbers();
-        collection = sampler.GenerateLerpField();
+        collection = sampler.PrecomputeChunk();
 
         listOfVectors = new List<Vector3>();
         listOfTriangles = new List<int>();
@@ -73,13 +72,8 @@ public class MarchingCubes
     private int index;
     private void March(Vector3 position)
     {
-        index = idIndexing(position);
-        Debug.Log("Index: " + index);
-        if(index == 4067)
-        {
-            Debug.Log("Close to crash index");
-        }
-        int caseNumber = (int)caseNumbers[index];
+        index = caseIndexing(position);
+        int caseNumber = (int)collection.caseNumbers[index];
         int numberOfPolygons = case_to_numpolys[caseNumber];
         for (int polygon = 0; polygon < numberOfPolygons; polygon++)
         {
@@ -126,13 +120,13 @@ public class MarchingCubes
             {
                 if (item == 2 || item == 6)
                 {
-                    sample = idIndexing(position + CubeOffSets[item + 1]);
-                    result = CubeOffSets[item + 1] + new Vector3(0, collection.Y.lerpValues[sample], 0);
+                    sample = lerpIndexing(position + CubeOffSets[item + 1]);
+                    result = CubeOffSets[item + 1] + new Vector3(0, collection.lerpValues_Y[sample], 0);
                 }
                 else
                 {
-                    sample = idIndexing(position);
-                    result = CubeOffSets[item] + new Vector3(0, collection.Y.lerpValues[sample], 0);
+                    sample = lerpIndexing(position);
+                    result = CubeOffSets[item] + new Vector3(0, collection.lerpValues_Y[sample], 0);
                 }
 
             }
@@ -140,20 +134,20 @@ public class MarchingCubes
             {
                 if (item == 3 || item == 7)
                 {
-                    sample = idIndexing(position + CubeOffSets[item - 3]);
-                    result = CubeOffSets[item - 3] + new Vector3(collection.X.lerpValues[sample], 0, 0);
+                    sample = lerpIndexing(position + CubeOffSets[item - 3]);
+                    result = CubeOffSets[item - 3] + new Vector3(collection.lerpValues_X[sample], 0, 0);
                 }
                 else
                 {
-                    sample = idIndexing(position);
-                    result = CubeOffSets[item] + new Vector3(collection.X.lerpValues[sample], 0, 0);
+                    sample = lerpIndexing(position);
+                    result = CubeOffSets[item] + new Vector3(collection.lerpValues_X[sample], 0, 0);
                 }
             }
         }
         else
         {
-            sample = idIndexing(position + CubeOffSets[item - 8]);
-            result = CubeOffSets[item - 8] + new Vector3(0, 0, collection.Z.lerpValues[sample]);
+            sample = lerpIndexing(position + CubeOffSets[item - 8]);
+            result = CubeOffSets[item - 8] + new Vector3(0, 0, collection.lerpValues_Z[sample]);
         }
         return result + position;
         //if (EdgesInX.Contains(item))
@@ -167,9 +161,15 @@ public class MarchingCubes
         //return new Vector3(-1, -1, -1);
     }
 
-    int idIndexing(Vector3 id)
+    int caseIndexing(Vector3 id)
     {
         return (int)( id.x + (volumeSize * id.y) + (volumeSize * volumeSize * id.z) );
+    }
+
+    int lerpIndexing(Vector3 id)
+    {
+        int volumeSize = 18;
+        return (int)(id.x + (volumeSize * id.y) + (volumeSize * volumeSize * id.z));
     }
 
     static readonly Vector3[] CubeOffSets =

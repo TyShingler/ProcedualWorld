@@ -508,8 +508,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9daf559826498d74fa12f0dad06848a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LerpShader: {fileID: 7200000, guid: 5102ea9f1ab029a4cbb107919395f803, type: 3}
-  CaseShader: {fileID: 7200000, guid: 80602e6de971b4f4597fefc60f19662f, type: 3}
+  LerpShader: {fileID: 0}
+  CaseShader: {fileID: 0}
 --- !u!4 &1219775598
 Transform:
   m_ObjectHideFlags: 0
@@ -645,15 +645,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d0a5687d627e3e47b08400f7693f219, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xOffsets: 0
-  yOffsets: 0
-  zOffsets: 0
-  lerpShader: {fileID: 7200000, guid: d43f1d742981bc14dbf885d8cbb26e8b, type: 3}
-  lerpField_texture: {fileID: 0}
-  lerpField_material: {fileID: 2100000, guid: dc2e4c6a17d78bf4e853e54bae726924, type: 2}
-  caseShader: {fileID: 7200000, guid: c46325b2e8b2dd64086dd84d5c7ff62d, type: 3}
-  caseNumber_texture: {fileID: 0}
-  caseNumber_material: {fileID: 2100000, guid: c9ea3fdb1a27bf04391cfc1a02141bf0, type: 2}
 --- !u!4 &1354202097
 Transform:
   m_ObjectHideFlags: 0

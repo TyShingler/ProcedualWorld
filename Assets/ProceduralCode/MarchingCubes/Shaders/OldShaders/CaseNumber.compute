@@ -21,6 +21,6 @@ float calculateCaseNumber(uint3 id)
 [numthreads(8,8,8)]
 void CaseNumber(uint3 id : SV_DispatchThreadID)
 {
-	CaseNumber_Texture[imageIndexing(id)] =     calculateCaseNumber(id) / 255;
-	CaseNumber_Floats[idIndexing(id)] = calculateCaseNumber(id) / 1;
+	CaseNumber_Texture[imageIndexing(id)] = calculateCaseNumber(id) / 255;
+	CaseNumber_Floats[idIndexing(id)] = calculateCaseNumber(id);
 }

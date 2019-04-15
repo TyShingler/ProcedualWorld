@@ -1,6 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
 
-public class ChunkPrecomputer : MonoBehaviour
+public class ChunkPrecomputer
 {
     public int xOffsets = 0;
     public int yOffsets = 0;
@@ -14,29 +17,25 @@ public class ChunkPrecomputer : MonoBehaviour
     public RenderTexture caseNumber_texture;
     public Material caseNumber_material;
 
-    // Start is called before the first frame update
-    void Start()
+    public ChunkPrecomputer(ComputeShader lerpFieldShader, ComputeShader caseNumberShader)
     {
-        
+        lerpShader = lerpFieldShader;
+        caseShader = caseNumberShader;
+        lerpField_material = (Material)AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/LerpFieldM.mat");
+        caseNumber_material = (Material)AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/CaseNumberM.mat");
     }
 
-    // Update is called once per frame
-    void Update()
+    public PrecomputedChunkCollection PrecomputeChunk()
     {
-        PrecomputeChunk();
-    }
-
-    private PrecomputedChunkCollection PrecomputeChunk()
-    {
-        ///---Shader setup---
+        ///---Shader setup--- 
         //--Kernals
         int lerpShaderHandler = lerpShader.FindKernel("PrecomputeChunkLerp");
         int caseShaderHandler = caseShader.FindKernel("PrecomputeChunkCase");
         //--Textures
         //-Lerp
-
         lerpField_texture = CreateTexture(18, 18 * 18);
         lerpShader.SetTexture(lerpShaderHandler, "LerpField_Texture", lerpField_texture);
+
         //-Case
         caseNumber_texture = CreateTexture(16, 16 * 16);
         caseShader.SetTexture(caseShaderHandler, "CaseNumber_Texture", caseNumber_texture);
@@ -46,6 +45,7 @@ public class ChunkPrecomputer : MonoBehaviour
         BufferPair XField = SetupComputeBuffer(lerpShaderHandler, lerpShader, "LerpFloats_X", 18*18*18);
         BufferPair YField = SetupComputeBuffer(lerpShaderHandler, lerpShader, "LerpFloats_Y", 18*18*18);
         BufferPair ZField = SetupComputeBuffer(lerpShaderHandler, lerpShader, "LerpFloats_Z", 18*18*18);
+        
         //-Case
         BufferPair caseNumbers = SetupComputeBuffer(caseShaderHandler, caseShader, "CaseNumber_Floats", 16 * 16 * 16);
 

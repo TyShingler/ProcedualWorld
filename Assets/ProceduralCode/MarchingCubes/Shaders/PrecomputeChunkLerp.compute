@@ -49,14 +49,14 @@ float lerpField(uint3 id, int side) {
 	float a = takeSample(id);
 	float b = takeSample(id + CubeOffSets[side]);
 	float zeroCheck = ((b - a == 0) ? 1 : 0);
-	float c = lerp(0.0f, 1.0f, a / abs(b - a));
-	return (zeroCheck == 1)? 255 : c;
+	float c = lerp(0.0f, 1.0f, (a) / (a - b));
+	return c;
 }
 
 float lerpForImage(uint3 id, int side) {
 
 	float value = lerpField(id, side);
-	return  value >= 0 ? value : 0.0f;
+	return (value + 1) / 2;
 }
 
 static const int xs = 3;
@@ -69,7 +69,7 @@ void PrecomputeChunkLerp(uint3 id : SV_DispatchThreadID)
 	//LerpField
 	float4 value = float4(lerpForImage(id, xs), lerpForImage(id, ys), lerpForImage(id, zs), 0.0f);
 	LerpField_Texture[imageIndexing(id, 18)] = value;
-	LerpFloats_X[idIndexing(id, 18)] = value.x;
-	LerpFloats_Y[idIndexing(id, 18)] = value.y;
-	LerpFloats_Z[idIndexing(id, 18)] = value.z;
+	LerpFloats_X[idIndexing(id, 18)] = lerpField(id, xs);
+	LerpFloats_Y[idIndexing(id, 18)] = lerpField(id, ys);
+	LerpFloats_Z[idIndexing(id, 18)] = lerpField(id, zs);
 }

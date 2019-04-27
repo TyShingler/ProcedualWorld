@@ -477,7 +477,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 18}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1219775596
 GameObject:
@@ -508,8 +508,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9daf559826498d74fa12f0dad06848a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LerpShader: {fileID: 0}
-  CaseShader: {fileID: 0}
+  LerpShader: {fileID: 7200000, guid: d43f1d742981bc14dbf885d8cbb26e8b, type: 3}
+  CaseShader: {fileID: 7200000, guid: c46325b2e8b2dd64086dd84d5c7ff62d, type: 3}
 --- !u!4 &1219775598
 Transform:
   m_ObjectHideFlags: 0
@@ -614,50 +614,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 18}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1354202095
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1354202097}
-  - component: {fileID: 1354202096}
-  m_Layer: 0
-  m_Name: ShaderV2_Tester
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1354202096
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1354202095}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d0a5687d627e3e47b08400f7693f219, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1354202097
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1354202095}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 33.85907, y: -176.07927, z: 6.3479624}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!84 &1368606924
 RenderTexture:

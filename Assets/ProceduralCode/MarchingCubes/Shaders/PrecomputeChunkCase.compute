@@ -31,7 +31,7 @@ static const float3 CubeOffSets[8] =
 	float3(1,0,1)  // 7
 };
 // Method for taking samples
-static const float sampleRate = 32.0f;
+static const float sampleRate = 16.0f;
 float takeSample(uint3 id) {
 	int3 pos = int3(id);
 	float3 location = float3(pos.x + xOffset, pos.y + yOffset, pos.z + zOffset) / sampleRate;

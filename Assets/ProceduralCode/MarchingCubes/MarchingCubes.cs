@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static ChunkPrecomputer;
+using static ShaderStub;
 using System;
 
 public class MarchingCubes
@@ -33,6 +34,8 @@ public class MarchingCubes
         sampler = new ChunkPrecomputer(lerpFieldShader, caseNumberShader);
 
         collection = sampler.PrecomputeChunk();
+
+        //collection = new ShaderStub().SamplerSetONE();
 
         listOfVectors = new List<Vector3>();
         listOfTriangles = new List<int>();
@@ -113,7 +116,7 @@ public class MarchingCubes
     private Vector3 GetVectorFromLerpField(Vector3 position, int item)
     {
         Vector3 result = new Vector3();
-        int sample = index;
+        int sample = 0;
         if (item < 8)
         {
             if (item % 2 == 0)
@@ -150,15 +153,6 @@ public class MarchingCubes
             result = CubeOffSets[item - 8] + new Vector3(0, 0, collection.lerpValues_Z[sample]);
         }
         return result + position;
-        //if (EdgesInX.Contains(item))
-        //{
-        //    return new Vector3(collection.X.lerpValues[index], 0, 0) + position;
-        //} else if (EdgesInY.Contains(item)) {
-        //    return new Vector3(0, collection.Y.lerpValues[index], 0) + position;
-        //} else if (EdgesInZ.Contains(item)) {
-        //    return new Vector3(0, 0, collection.Z.lerpValues[index]) + position;
-        //}
-        //return new Vector3(-1, -1, -1);
     }
 
     int caseIndexing(Vector3 id)

@@ -508,7 +508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9daf559826498d74fa12f0dad06848a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LerpShader: {fileID: 7200000, guid: d43f1d742981bc14dbf885d8cbb26e8b, type: 3}
+  SampleShader: {fileID: 7200000, guid: bf57e15c28cf52b4789ca59f2a8a1c79, type: 3}
   CaseShader: {fileID: 7200000, guid: c46325b2e8b2dd64086dd84d5c7ff62d, type: 3}
 --- !u!4 &1219775598
 Transform:

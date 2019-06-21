@@ -9,19 +9,19 @@ public class ChunkPrecomputer
     public int yOffsets = 0;
     public int zOffsets = 0;
 
-    public ComputeShader lerpShader;
-    public RenderTexture lerpField_texture;
-    public Material lerpField_material;
+    public ComputeShader samplerShader;
+    public RenderTexture sampler_texture;
+    public Material sampler_material;
 
     public ComputeShader caseShader;
     public RenderTexture caseNumber_texture;
     public Material caseNumber_material;
 
-    public ChunkPrecomputer(ComputeShader lerpFieldShader, ComputeShader caseNumberShader)
+    public ChunkPrecomputer(ComputeShader samplerShaderIN, ComputeShader caseNumberShader)
     {
-        lerpShader = lerpFieldShader;
+        samplerShader = samplerShaderIN;
         caseShader = caseNumberShader;
-        lerpField_material = (Material)AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/LerpFieldM.mat");
+        sampler_material = (Material)AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/LerpFieldM.mat");
         caseNumber_material = (Material)AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/CaseNumberM.mat");
     }
 
@@ -29,12 +29,12 @@ public class ChunkPrecomputer
     {
         ///---Shader setup--- 
         //--Kernals
-        int lerpShaderHandler = lerpShader.FindKernel("PrecomputeChunkLerp");
+        int sampleHandler = samplerShader.FindKernel("PrecomputeChunkSampler");
         int caseShaderHandler = caseShader.FindKernel("PrecomputeChunkCase");
         //--Textures
         //-Lerp
-        lerpField_texture = CreateTexture(18, 18 * 18);
-        lerpShader.SetTexture(lerpShaderHandler, "LerpField_Texture", lerpField_texture);
+        sampler_texture = CreateTexture(18, 18 * 18);
+        samplerShader.SetTexture(sampleHandler, "DebugImage", sampler_texture);
 
         //-Case
         caseNumber_texture = CreateTexture(16, 16 * 16);
@@ -42,34 +42,28 @@ public class ChunkPrecomputer
 
         //--Float Arrays
         //-Lerp
-        BufferPair XField = SetupComputeBuffer(lerpShaderHandler, lerpShader, "LerpFloats_X", 18*18*18);
-        BufferPair YField = SetupComputeBuffer(lerpShaderHandler, lerpShader, "LerpFloats_Y", 18*18*18);
-        BufferPair ZField = SetupComputeBuffer(lerpShaderHandler, lerpShader, "LerpFloats_Z", 18*18*18);
+        BufferPair samples = SetupComputeBuffer(sampleHandler, samplerShader, "SampleField", 18*18*18);
         
         //-Case
         BufferPair caseNumbers = SetupComputeBuffer(caseShaderHandler, caseShader, "CaseNumber_Floats", 16 * 16 * 16);
 
         //--Setting Offsets
-        SetupShaderOffsets(lerpShader);
+        SetupShaderOffsets(samplerShader);
         SetupShaderOffsets(caseShader);
 
         //--Dispatch
-        lerpShader.Dispatch(lerpShaderHandler, 18 / 6, 18 / 6, 18 / 6);
-        caseShader.Dispatch(lerpShaderHandler, 16 / 8, 16 / 8, 16 / 8);
+        samplerShader.Dispatch(sampleHandler, 18 / 6, 18 / 6, 18 / 6);
+        caseShader.Dispatch(caseShaderHandler, 16 / 8, 16 / 8, 16 / 8);
 
         //--Returning Textures
-        lerpField_material.mainTexture = lerpField_texture;
+        sampler_material.mainTexture = sampler_texture;
         caseNumber_material.mainTexture = caseNumber_texture;
 
         //--Fetch data for method return
-        FetchArrayData(XField);
-        FetchArrayData(YField);
-        FetchArrayData(ZField);
+        FetchArrayData(samples);
         FetchArrayData(caseNumbers);
         PrecomputedChunkCollection collection = new PrecomputedChunkCollection();
-        collection.lerpValues_X = XField.array;
-        collection.lerpValues_Y = YField.array;
-        collection.lerpValues_Z = ZField.array;
+        collection.samples = samples.array;
         collection.caseNumbers = caseNumbers.array;
 
         return collection;
@@ -77,9 +71,7 @@ public class ChunkPrecomputer
 
     public struct PrecomputedChunkCollection
     {
-        public float[] lerpValues_X;
-        public float[] lerpValues_Y;
-        public float[] lerpValues_Z;
+        public float[] samples;
         public float[] caseNumbers;
     }
 

@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static ChunkPrecomputer;
-using static ShaderStub;
 using System;
 
 public class MarchingCubes
 {
     //      ---Public---
-    public ComputeShader lerpFieldShader;
+    public ComputeShader samplerShader;
     public ComputeShader caseNumberShader;
 
     //      ---Private---
     private ChunkPrecomputer sampler;
     private float[] caseNumbers;
     private PrecomputedChunkCollection collection;
-    private int volumeSize = 16;
 
     private List<Vector3> listOfVectors;
     private List<int> listOfTriangles;
@@ -23,23 +21,22 @@ public class MarchingCubes
 
     private int hashedIndex = 0;
 
-    public void SetShaders(ComputeShader LerpShader, ComputeShader CaseShader)
+    public void SetShaders(ComputeShader SamplerShader, ComputeShader CaseShader)
     {
-        lerpFieldShader = LerpShader;
+        samplerShader = SamplerShader;
         caseNumberShader = CaseShader;
     }
 
     public Mesh GenerateMesh()
     {
-        sampler = new ChunkPrecomputer(lerpFieldShader, caseNumberShader);
+        sampler = new ChunkPrecomputer(samplerShader, caseNumberShader);
 
         collection = sampler.PrecomputeChunk();
-
-        //collection = new ShaderStub().SamplerSetONE();
 
         listOfVectors = new List<Vector3>();
         listOfTriangles = new List<int>();
         hashedVectors = new Dictionary<Vector3, int>();
+        hashedIndex = 0;
 
         Vector3 position = new Vector3();
 
@@ -109,54 +106,70 @@ public class MarchingCubes
         }
     }
 
-    static readonly List<int> EdgesInX = new List<int>(new int[] { 1, 3, 5, 7 } );
-    static readonly List<int> EdgesInY = new List<int>(new int[] { 0, 2, 4, 6 } );
-    static readonly List<int> EdgesInZ = new List<int>(new int[] { 8, 9, 10, 11 } );
+    static readonly List<int> EdgesInX = new List<int>(new int[] { 1, 3, 5, 7 });
+    static readonly List<int> EdgesInY = new List<int>(new int[] { 0, 2, 4, 6 });
+    static readonly List<int> EdgesInZ = new List<int>(new int[] { 8, 9, 10, 11 });
 
-    private Vector3 GetVectorFromLerpField(Vector3 position, int item)
+    static readonly int[,] EdgeToPointPairs = {
+            { 0, 1 },
+            { 1, 2 },
+            { 2, 3 },
+            { 0, 3 },
+
+            { 4 ,5 },
+            { 5, 6 },
+            { 6, 7 },
+            { 4, 7 },
+
+            { 0, 4 },
+            { 1, 5 },
+            { 2, 6 },
+            { 3, 7 }
+        };
+
+    private Vector3 GetVectorFromLerpField(Vector3 position, int edge)
     {
-        Vector3 result = new Vector3();
-        int sample = 0;
-        if (item < 8)
-        {
-            if (item % 2 == 0)
-            {
-                if (item == 2 || item == 6)
-                {
-                    sample = lerpIndexing(position + CubeOffSets[item + 1]);
-                    result = CubeOffSets[item + 1] + new Vector3(0, collection.lerpValues_Y[sample], 0);
-                }
-                else
-                {
-                    sample = lerpIndexing(position);
-                    result = CubeOffSets[item] + new Vector3(0, collection.lerpValues_Y[sample], 0);
-                }
 
-            }
-            else
-            {
-                if (item == 3 || item == 7)
-                {
-                    sample = lerpIndexing(position + CubeOffSets[item - 3]);
-                    result = CubeOffSets[item - 3] + new Vector3(collection.lerpValues_X[sample], 0, 0);
-                }
-                else
-                {
-                    sample = lerpIndexing(position);
-                    result = CubeOffSets[item] + new Vector3(collection.lerpValues_X[sample], 0, 0);
-                }
-            }
-        }
-        else
+        Vector3 pointA = position + CubeOffSets[EdgeToPointPairs[edge, 0]];
+        Vector3 pointB = position + CubeOffSets[EdgeToPointPairs[edge, 1]];
+
+        float A = collection.samples[lerpIndexing(pointA)];
+        float B = collection.samples[lerpIndexing(pointB)];
+
+        /* Debug
+        if((A > 0 && B > 0) || (A < 0 && B < 0))
         {
-            sample = lerpIndexing(position + CubeOffSets[item - 8]);
-            result = CubeOffSets[item - 8] + new Vector3(0, 0, collection.lerpValues_Z[sample]);
+            float c = A + B;
         }
-        return result + position;
+        */
+        return Vector3Lerp(pointA, pointB, A / (A - B) );
+    }
+
+    private Vector3 Vector3Lerp(Vector3 a, Vector3 b, float t)
+    {
+        float x = a.x;
+        float y = a.y;
+        float z = a.z;
+        
+        if (a.x - b.x != 0)
+        {
+            x = Mathf.Lerp(a.x, b.x, t );
+        }
+        if (a.y - b.y != 0)
+        {
+            y = Mathf.Lerp(a.y, b.y, t );
+        }
+        if (a.z - b.z != 0)
+        {
+            z = Mathf.Lerp(a.z, b.z, t );
+        }
+
+        return new Vector3(x, y, z);
     }
 
     int caseIndexing(Vector3 id)
     {
+        int volumeSize = 16;
         return (int)( id.x + (volumeSize * id.y) + (volumeSize * volumeSize * id.z) );
     }
 

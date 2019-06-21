@@ -7,7 +7,7 @@ using UnityEditor;
 public class DisplayMesh : MonoBehaviour
 {
     //      ---Public---
-    public ComputeShader LerpShader;
+    public ComputeShader SampleShader;
     public ComputeShader CaseShader;
 
     //      ---Private---
@@ -17,12 +17,12 @@ public class DisplayMesh : MonoBehaviour
     void Start()
     {
         marchingCubes = new MarchingCubes();
-        marchingCubes.SetShaders(LerpShader, CaseShader);
+        marchingCubes.SetShaders(SampleShader, CaseShader);
 
         chunk = new GameObject("Check(0,0,0)");
         chunk.transform.parent = transform;
 
-        GenerateArea();
+        //GenerateArea();
         
     }
 
